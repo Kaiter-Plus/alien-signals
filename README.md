@@ -45,41 +45,41 @@ Since Vue 3.5 switched to a Pull reactivity system in https://github.com/vuejs/c
 ### Basic
 
 ```ts
-import { signal, computed, effect } from 'alien-signals';
+import { signal, computed, effect } from 'alien-signals'
 
-const count = signal(1);
-const doubleCount = computed(() => count.get() * 2);
+const count = signal(1)
+const doubleCount = computed(() => count.get() * 2)
 
 effect(() => {
-  console.log(`Count is: ${count.get()}`);
-}); // Console: Count is: 1
+  console.log(`Count is: ${count.get()}`)
+}) // Console: Count is: 1
 
-console.log(doubleCount.get()); // 2
+console.log(doubleCount.get()) // 2
 
-count.set(2); // Console: Count is: 2
+count.set(2) // Console: Count is: 2
 
-console.log(doubleCount.get()); // 4
+console.log(doubleCount.get()) // 4
 ```
 
 ### Effect Scope
 
 ```ts
-import { signal, effectScope } from 'alien-signals';
+import { signal, effectScope } from 'alien-signals'
 
-const count = signal(1);
-const scope = effectScope();
+const count = signal(1)
+const scope = effectScope()
 
 scope.run(() => {
   effect(() => {
-    console.log(`Count in scope: ${count.get()}`);
-  }); // Console: Count in scope: 1
+    console.log(`Count in scope: ${count.get()}`)
+  }) // Console: Count in scope: 1
 
-  count.set(2); // Console: Count in scope: 2
-});
+  count.set(2) // Console: Count in scope: 2
+})
 
-scope.stop();
+scope.stop()
 
-count.set(3); // No console output
+count.set(3) // No console output
 ```
 
 ## About `propagate` and `checkDirty` functions
@@ -92,63 +92,53 @@ This results in code that is difficult to understand, and you don't necessarily 
 
 ```ts
 export function propagate(link: Link, targetFlag: SubscriberFlags = SubscriberFlags.Dirty): void {
-	do {
-		const sub = link.sub;
-		let subFlags = sub.flags;
+  do {
+    const sub = link.sub
+    let subFlags = sub.flags
 
-		if (!(subFlags & SubscriberFlags.Tracking)) {
-			let canPropagate = !(subFlags >> 2);
-			if (!canPropagate) {
-				if (subFlags & SubscriberFlags.CanPropagate) {
-					sub.flags = (subFlags & ~SubscriberFlags.CanPropagate) | targetFlag;
-					canPropagate = true;
-				} else if (!(subFlags & targetFlag)) {
-					sub.flags = subFlags | targetFlag;
-				}
-			} else {
-				sub.flags = subFlags | targetFlag;
-			}
-			if (canPropagate) {
-				const subSubs = (sub as Dependency).subs;
-				if (subSubs !== undefined) {
-					propagate(
-						subSubs,
-						'notify' in sub
-							? SubscriberFlags.RunInnerEffects
-							: SubscriberFlags.ToCheckDirty
-					);
-				} else if ('notify' in sub) {
-					if (queuedEffectsTail !== undefined) {
-						queuedEffectsTail.nextNotify = sub;
-					} else {
-						queuedEffects = sub;
-					}
-					queuedEffectsTail = sub;
-				}
-			}
-		} else if (isValidLink(link, sub)) {
-			if (!(subFlags >> 2)) {
-				sub.flags = subFlags | targetFlag | SubscriberFlags.CanPropagate;
-				const subSubs = (sub as Dependency).subs;
-				if (subSubs !== undefined) {
-					propagate(
-						subSubs,
-						'notify' in sub
-							? SubscriberFlags.RunInnerEffects
-							: SubscriberFlags.ToCheckDirty
-					);
-				}
-			} else if (!(subFlags & targetFlag)) {
-				sub.flags = subFlags | targetFlag;
-			}
-		}
+    if (!(subFlags & SubscriberFlags.Tracking)) {
+      let canPropagate = !(subFlags >> 2)
+      if (!canPropagate) {
+        if (subFlags & SubscriberFlags.CanPropagate) {
+          sub.flags = (subFlags & ~SubscriberFlags.CanPropagate) | targetFlag
+          canPropagate = true
+        } else if (!(subFlags & targetFlag)) {
+          sub.flags = subFlags | targetFlag
+        }
+      } else {
+        sub.flags = subFlags | targetFlag
+      }
+      if (canPropagate) {
+        const subSubs = (sub as Dependency).subs
+        if (subSubs !== undefined) {
+          propagate(subSubs, 'notify' in sub ? SubscriberFlags.RunInnerEffects : SubscriberFlags.ToCheckDirty)
+        } else if ('notify' in sub) {
+          if (queuedEffectsTail !== undefined) {
+            queuedEffectsTail.nextNotify = sub
+          } else {
+            queuedEffects = sub
+          }
+          queuedEffectsTail = sub
+        }
+      }
+    } else if (isValidLink(link, sub)) {
+      if (!(subFlags >> 2)) {
+        sub.flags = subFlags | targetFlag | SubscriberFlags.CanPropagate
+        const subSubs = (sub as Dependency).subs
+        if (subSubs !== undefined) {
+          propagate(subSubs, 'notify' in sub ? SubscriberFlags.RunInnerEffects : SubscriberFlags.ToCheckDirty)
+        }
+      } else if (!(subFlags & targetFlag)) {
+        sub.flags = subFlags | targetFlag
+      }
+    }
 
-		link = link.nextSub!;
-	} while (link !== undefined);
+    link = link.nextSub!
+  } while (link !== undefined)
 
-	if (targetFlag === SubscriberFlags.Dirty && !batchDepth) {
-		drainQueuedEffects();
-	}
+  if (targetFlag === SubscriberFlags.Dirty && !batchDepth) {
+    drainQueuedEffects()
+  }
 }
 ```
 
@@ -156,41 +146,41 @@ export function propagate(link: Link, targetFlag: SubscriberFlags = SubscriberFl
 
 ```ts
 export function checkDirty(link: Link): boolean {
-	do {
-		const dep = link.dep;
-		if ('update' in dep) {
-			const depFlags = dep.flags;
-			const linkValue = link.value;
-			if (depFlags & SubscriberFlags.Dirty) {
-				if (dep.update() !== linkValue) {
-					return true;
-				}
-			} else if (depFlags & SubscriberFlags.ToCheckDirty) {
-				if (checkDirty(dep.deps!)) {
-					if (dep.update() !== linkValue) {
-						return true;
-					}
-				} else {
-					dep.flags = depFlags & ~SubscriberFlags.ToCheckDirty;
-					if (dep.currentValue !== linkValue) {
-						return true;
-					}
-				}
-			} else if (dep.currentValue !== linkValue) {
-				return true;
-			}
-		}
-		link = link.nextDep!;
-	} while (link !== undefined);
+  do {
+    const dep = link.dep
+    if ('update' in dep) {
+      const depFlags = dep.flags
+      const linkValue = link.value
+      if (depFlags & SubscriberFlags.Dirty) {
+        if (dep.update() !== linkValue) {
+          return true
+        }
+      } else if (depFlags & SubscriberFlags.ToCheckDirty) {
+        if (checkDirty(dep.deps!)) {
+          if (dep.update() !== linkValue) {
+            return true
+          }
+        } else {
+          dep.flags = depFlags & ~SubscriberFlags.ToCheckDirty
+          if (dep.currentValue !== linkValue) {
+            return true
+          }
+        }
+      } else if (dep.currentValue !== linkValue) {
+        return true
+      }
+    }
+    link = link.nextDep!
+  } while (link !== undefined)
 
-	return false;
+  return false
 }
 ```
 
 ## Roadmap
 
 | Version | Savings                                                                                       |
-|---------|-----------------------------------------------------------------------------------------------|
+| ------- | --------------------------------------------------------------------------------------------- |
 | 0.3     | Satisfy all 4 constraints                                                                     |
 | 0.2     | Correctly schedule computed side effects                                                      |
 | 0.1     | Correctly schedule inner effect callbacks                                                     |
