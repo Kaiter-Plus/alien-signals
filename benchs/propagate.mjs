@@ -1,6 +1,8 @@
 import { run, bench, boxplot } from 'mitata';
 import { computed, effect, signal } from '../esm/index.mjs';
 
+global.gc ??= Bun.gc
+
 boxplot(() => {
 	bench('propagate: $w * $h', function* (state) {
 		const w = state.get('w');

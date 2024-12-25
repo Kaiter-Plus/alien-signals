@@ -8,20 +8,18 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [22]
+        bun-version: [latest]
         os: [macos-latest, windows-latest, ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v2
 
-      - uses: pnpm/action-setup@v4
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - name: Use Bun ${{ matrix.bun-version }}
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          bun-version: ${{ matrix.bun-version }}
 
       # install pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run build
-      - run: pnpm run test
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+      - run: bun test

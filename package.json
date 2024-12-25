@@ -32,17 +32,17 @@
 		"url": "git+https://github.com/johnsoncodehk/signals.git"
 	},
 	"scripts": {
-		"prepublishOnly": "npm run build",
-		"build": "tsc && npm run build:esm && npm run build:cjs",
-		"build:esm": "esbuild src/index.ts --bundle --format=esm --outfile=esm/index.mjs",
-		"build:cjs": "esbuild src/index.ts --bundle --format=cjs --outfile=cjs/index.cjs",
-		"test": "vitest run",
-		"bench": "npm run build:esm && node --jitless --expose-gc benchs/propagate.mjs"
+		"prepublishOnly": "bun run build",
+		"build": "tsc && bun run build:esm && bun run build:cjs",
+		"build:esm": "bun build src/index.ts --bundle --format esm --outdir esm --entry-naming [dir]/[name].mjs",
+		"build:cjs": "bun build src/index.ts --bundle --format=cjs --outdir cjs --entry-naming [dir]/[name].cjs",
+		"bench": "bun run build:esm && bun benchs/propagate.mjs"
+	},
+	"peerDependencies": {
+		"typescript": "latest"
 	},
 	"devDependencies": {
-		"esbuild": "latest",
-		"mitata": "latest",
-		"typescript": "latest",
-		"vitest": "latest"
+		"@types/bun": "latest",
+		"mitata": "latest"
 	}
 }

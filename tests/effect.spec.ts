@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'bun:test';
 import { Effect } from '../src';
 import { computed, effect, effectScope, endBatch, signal, startBatch } from './api';
 

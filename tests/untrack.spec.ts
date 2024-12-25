@@ -1,6 +1,6 @@
 import { untrack } from '../src';
 import { signal, computed } from './api';
-import { expect, test } from 'vitest';
+import { expect, test } from 'bun:test';
 
 test('should untrack', () => {
 	const src = signal(0);

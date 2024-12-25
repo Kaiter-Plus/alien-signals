@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, mock } from 'bun:test';
 import { computedArray } from '../src/unstable/computedArray';
 import { effect, signal } from './api';
 
@@ -11,7 +11,7 @@ test('should get updated item value', () => {
 });
 
 test('should watch item value change', () => {
-	const spy = vi.fn();
+	const spy = mock();
 	const src = signal([1]);
 	const arr = computedArray(src, item => {
 		return () => item.get() + 1;
@@ -26,7 +26,7 @@ test('should watch item value change', () => {
 });
 
 test('should not trigger if item value did not change', () => {
-	const spy = vi.fn();
+	const spy = mock();
 	const src = signal([1]);
 	const arr = computedArray(src, item => {
 		return () => item.get() + 1;
@@ -41,7 +41,7 @@ test('should not trigger if item value did not change', () => {
 });
 
 test('should not trigger first item computed if source item did not change', () => {
-	const spy = vi.fn();
+	const spy = mock();
 	const src = signal([1]);
 	const arr = computedArray(src, (item, i) => {
 		return () => {
@@ -60,7 +60,7 @@ test('should not trigger first item computed if source item did not change', () 
 });
 
 test('should watch length change', () => {
-	const spy = vi.fn();
+	const spy = mock();
 	const src = signal([1]);
 	const arr = computedArray(src, item => {
 		return () => item.get() + 1;
@@ -77,7 +77,7 @@ test('should watch length change', () => {
 });
 
 test('should watch item remove', () => {
-	const spy = vi.fn();
+	const spy = mock();
 	const src = signal([1, 2]);
 	const arr = computedArray(src, item => {
 		return () => item.get() + 1;
@@ -94,7 +94,7 @@ test('should watch item remove', () => {
 });
 
 test('should only trigger access items', () => {
-	const spy = vi.fn();
+	const spy = mock();
 	const src = signal([1, 2, 3, 4]);
 	const arr = computedArray(src, item => {
 		return () => {

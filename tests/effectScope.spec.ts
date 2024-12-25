@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'bun:test';
 import { effect, effectScope, signal } from './api';
 
 test('should not trigger after stop', () => {
