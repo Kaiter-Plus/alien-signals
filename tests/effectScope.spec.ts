@@ -6,10 +6,10 @@ test('should not trigger after stop', () => {
 	const scope = effectScope();
 
 	let triggers = 0;
-	let effect1;
+	let _effect1;
 
 	scope.run(() => {
-		effect1 = effect(() => {
+		_effect1 = effect(() => {
 			triggers++;
 			count.get();
 		});
