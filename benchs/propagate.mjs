@@ -1,5 +1,5 @@
 import { bench, boxplot, run } from 'mitata'
-import { computed, effect, signal } from '../esm/index.mjs'
+import { computed, effect, signal } from '../dist/index.mjs'
 
 global.gc ??= Bun.gc
 
